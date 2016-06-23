@@ -36,10 +36,15 @@ RCT_EXPORT_METHOD(mail:(NSDictionary *)options
             NSString *subject = [RCTConvert NSString:options[@"subject"]];
             [mail setSubject:subject];
         }
+        bool *isHTML = NO;
+        
+        if (options[@"isHTML"]){
+            isHTML = YES;
+        }
 
         if (options[@"body"]){
             NSString *body = [RCTConvert NSString:options[@"body"]];
-            [mail setMessageBody:body isHTML:NO];
+            [mail setMessageBody:body isHTML:isHTML];
         }
 
         if (options[@"recipients"]){
@@ -75,9 +80,13 @@ RCT_EXPORT_METHOD(mail:(NSDictionary *)options
       				}
       				[mail addAttachmentData:fileData mimeType:mimeType fileName:name];
       			}
-        }
-        
+       }
+
         UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+
+        while (root.presentedViewController) {
+            root = root.presentedViewController;
+        }
         [root presentViewController:mail animated:YES completion:nil];
     } else {
         callback(@[@"not_available"]);
@@ -113,6 +122,9 @@ RCT_EXPORT_METHOD(mail:(NSDictionary *)options
         RCTLogWarn(@"No callback registered for mail: %@", controller.title);
     }
     UIViewController *ctrl = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    while (ctrl.presentedViewController && ctrl != controller) {
+        ctrl = ctrl.presentedViewController;
+    }
     [ctrl dismissViewControllerAnimated:YES completion:nil];
 }
 
