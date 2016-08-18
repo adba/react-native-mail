@@ -82,6 +82,16 @@ RCT_EXPORT_METHOD(mail:(NSDictionary *)options
       			}
        }
 
+        if (options[@"ccRecipients"]){
+            NSArray *ccRecipients = [RCTConvert NSArray:options[@"ccRecipients"]];
+            [mail setCcRecipients:ccRecipients];
+        }
+        
+        if (options[@"bccRecipients"]){
+            NSArray *bccRecipients = [RCTConvert NSArray:options[@"bccRecipients"]];
+            [mail setBccRecipients:bccRecipients];
+        }
+
         UIViewController *root = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
 
         while (root.presentedViewController) {
