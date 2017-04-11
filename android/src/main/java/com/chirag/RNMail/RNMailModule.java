@@ -19,7 +19,6 @@ import java.io.File;
 /**
  * NativeModule that allows JS to open emails sending apps chooser.
  */
-
 public class RNMailModule extends ReactContextBaseJavaModule {
 
   ReactApplicationContext reactContext;
@@ -35,21 +34,21 @@ public class RNMailModule extends ReactContextBaseJavaModule {
   }
 
   /**
-   * Converts a ReadableArray to a String array
-   *
-   * @param r the ReadableArray instance to convert
-   *
-   * @return array of strings
-   */
+    * Converts a ReadableArray to a String array
+    *
+    * @param r the ReadableArray instance to convert
+    *
+    * @return array of strings
+  */
   private String[] readableArrayToStringArray(ReadableArray r) {
     int length = r.size();
-    String[] recipients = new String[length];
+    String[] strArray = new String[length];
 
     for (int keyIndex = 0; keyIndex < length; keyIndex++) {
-      recipients[keyIndex] = r.getString(keyIndex);
+      strArray[keyIndex] = r.getString(keyIndex);
     }
 
-    return recipients;
+    return strArray;
   }
 
   @ReactMethod
@@ -97,6 +96,16 @@ public class RNMailModule extends ReactContextBaseJavaModule {
     }
 
 
+    if (options.hasKey("attachment") && !options.isNull("attachment")) {
+      ReadableMap attachment = options.getMap("attachment");
+      if (attachment.hasKey("path") && !attachment.isNull("path")) {
+        String path = attachment.getString("path");
+        File file = new File(path);
+        Uri p = Uri.fromFile(file);
+        i.putExtra(Intent.EXTRA_STREAM, p);
+      }
+    }
+
     PackageManager manager = reactContext.getPackageManager();
     List<ResolveInfo> list = manager.queryIntentActivities(i, 0);
 
@@ -105,13 +114,22 @@ public class RNMailModule extends ReactContextBaseJavaModule {
       return;
     }
 
-    Intent chooser = Intent.createChooser(i, "Send Mail");
-    chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    if (list.size() == 1) {
+      i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      try {
+        reactContext.startActivity(i);
+      } catch (Exception ex) {
+        callback.invoke("error");
+      }
+    } else {
+      Intent chooser = Intent.createChooser(i, "Send Mail");
+      chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-    try {
-      reactContext.startActivity(chooser);
-    } catch (Exception ex) {
-      callback.invoke("error");
+      try {
+        reactContext.startActivity(chooser);
+      } catch (Exception ex) {
+        callback.invoke("error");
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 #import <MessageUI/MessageUI.h>
 #import "RNMail.h"
-#import "RCTConvert.h"
-#import "RCTLog.h"
+#import <React/RCTConvert.h>
+#import <React/RCTLog.h>
 
 @implementation RNMail
 {
@@ -37,7 +37,7 @@ RCT_EXPORT_METHOD(mail:(NSDictionary *)options
             [mail setSubject:subject];
         }
         bool *isHTML = NO;
-        
+
         if (options[@"isHTML"]){
             isHTML = YES;
         }
@@ -86,7 +86,7 @@ RCT_EXPORT_METHOD(mail:(NSDictionary *)options
             NSArray *ccRecipients = [RCTConvert NSArray:options[@"ccRecipients"]];
             [mail setCcRecipients:ccRecipients];
         }
-        
+
         if (options[@"bccRecipients"]){
             NSArray *bccRecipients = [RCTConvert NSArray:options[@"bccRecipients"]];
             [mail setBccRecipients:bccRecipients];
